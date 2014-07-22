@@ -77,11 +77,17 @@ class Chunk implements LoggerAwareInterface
         $this->average  = $estimate / $target;
         $this->logger   = new NullLogger();
 
+        $this->options = $options;
+        $this->mergeDefaultOptions();
+    }
+
+    protected function mergeDefaultOptions()
+    {
         $this->options  = array_merge([
             'min'       => (int)(0.01 * $this->estimate),
             'max'       => (int)(3    * $this->estimate),
             'smoothing' => 0.3
-        ], $options);
+        ], $this->options);
     }
 
     /**

@@ -45,3 +45,9 @@ for (/* ... */) {
 
 This library can be loaded with PSR4, but you'd usually just install it with
 Composer. The package name is `vend/chunky`.
+
+## Monitoring Replication Lag
+
+A Chunk class is provided for monitoring MySQL slave lag on a set of slave
+database servers: `ReplicatedChunk`. This class is MySQL-specific (because getting
+the current slave lag is not implemented for other drivers).

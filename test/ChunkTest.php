@@ -78,4 +78,13 @@ class ChunkTest extends Test
 
         $this->assertEquals(300, $chunk->getEstimatedSize());
     }
+
+    public function testNormalContract()
+    {
+        $chunk = new Chunk(100, 1);
+        $chunk->begin();
+        $chunk->end(10);
+
+        $this->assertInternalType('int', $chunk->getEstimatedSize());
+    }
 }
