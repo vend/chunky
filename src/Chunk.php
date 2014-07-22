@@ -97,7 +97,7 @@ class Chunk implements LoggerAwareInterface
      */
     public function begin()
     {
-        $this->begin = microtime(true);
+        $this->begin = (float)microtime(true);
     }
 
     /**
@@ -108,7 +108,7 @@ class Chunk implements LoggerAwareInterface
      */
     public function end($processed = null)
     {
-        $this->end = microtime(true);
+        $this->end = (float)microtime(true);
         $this->updateEstimate($processed);
     }
 
@@ -120,8 +120,8 @@ class Chunk implements LoggerAwareInterface
      */
     public function interval($interval, $processed = null)
     {
-        $this->begin = 0;
-        $this->end = $interval;
+        $this->begin = 0.0;
+        $this->end   = $interval;
         $this->updateEstimate($processed);
     }
 
@@ -154,7 +154,7 @@ class Chunk implements LoggerAwareInterface
         $this->average = $this->updateExponentialAverage($this->average, $observed);
 
         // Calculate the new estimate
-        $this->estimate = (int)$this->average * $this->target;
+        $this->estimate = (int)round($this->average * $this->target, 0);
 
         $clamp = false;
 
