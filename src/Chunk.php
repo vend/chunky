@@ -60,7 +60,7 @@ class Chunk implements LoggerAwareInterface
     /**
      * @var array
      */
-    protected $options;
+    protected $options = [];
 
     /**
      * @param int $estimate
@@ -81,13 +81,14 @@ class Chunk implements LoggerAwareInterface
         $this->mergeDefaultOptions();
     }
 
-    protected function mergeDefaultOptions()
+    /**
+     * Returns an estimated chunk size to use to get the operation to perform within the target timeframe
+     *
+     * @return int
+     */
+    public function getEstimatedSize()
     {
-        $this->options  = array_merge([
-            'min'       => (int)(0.01 * $this->estimate),
-            'max'       => (int)(3    * $this->estimate),
-            'smoothing' => 0.3
-        ], $this->options);
+        return $this->estimate;
     }
 
     /**
@@ -113,26 +114,42 @@ class Chunk implements LoggerAwareInterface
     }
 
     /**
+     * Sets an option
+     *
+     * @param string $name
+     * @param mixed  $value
+     */
+    public function setOption($name, $value)
+    {
+        $this->options[$name] = $value;
+    }
+
+    /**
+     * Gets an option value
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+        return $this->options[$name];
+    }
+
+    /**
      * Alternative way to set observed time
      *
+     * Instead of using begin/end to directly measure elapsed time, you can
+     * tell the chunk exactly how much time to assume the last chunk took. (This
+     * is especially useful for testing.)
+     *
      * @param float $interval
-     * @param int $processed The number of items that were actually processed
+     * @param int   $processed The number of items that were actually processed
      */
     public function interval($interval, $processed = null)
     {
         $this->begin = 0.0;
         $this->end   = $interval;
         $this->updateEstimate($processed);
-    }
-
-    /**
-     * Returns an estimated chunk size to use to get the operation to perform within the target timeframe
-     *
-     * @return int
-     */
-    public function getEstimatedSize()
-    {
-        return $this->estimate;
     }
 
     /**
@@ -194,5 +211,29 @@ class Chunk implements LoggerAwareInterface
     protected function updateExponentialAverage($previous, $new)
     {
         return $this->options['smoothing'] * $new + (1 - $this->options['smoothing']) * $previous;
+    }
+
+    /**
+     * Merges default options into the current options
+     *
+     * @return void
+     */
+    protected function mergeDefaultOptions()
+    {
+        $this->options = array_merge($this->getDefaultOptions(), $this->options);
+    }
+
+    /**
+     * Gets the default option array
+     *
+     * @return array<string,mixed>
+     */
+    protected function getDefaultOptions()
+    {
+        return [
+            'min'       => (int)(0.01 * $this->estimate),
+            'max'       => (int)(3 * $this->estimate),
+            'smoothing' => 0.3
+        ];
     }
 }

@@ -43,16 +43,14 @@ class ReplicatedChunk extends Chunk
     /**
      * @inheritDoc
      */
-    protected function mergeDefaultOptions()
+    protected function getDefaultOptions()
     {
-        parent::mergeDefaultOptions();
-
-        $this->options = array_merge([
+        return array_merge(parent::getDefaultOptions(), [
             'pause'     => 500000,   // microseconds, 0.5 seconds
             'max_pause' => 60000000, // microseconds, 60 seconds
             'max_lag'   => 1,
             'continue'  => false     // continue if still lagged after max_pause
-        ], $this->options);
+        ]);
     }
 
     /**

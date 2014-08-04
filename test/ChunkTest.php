@@ -4,6 +4,15 @@ namespace Chunky;
 
 class ChunkTest extends Test
 {
+    public function testGetSetOption()
+    {
+        $chunk = new Chunk(1000, 10, ['foo' => 'bar']);
+        $this->assertEquals('bar', $chunk->getOption('foo'));
+
+        $chunk->setOption('foo', 'baz');
+        $this->assertEquals('baz', $chunk->getOption('foo'));
+    }
+
     public function testInitialEstimate()
     {
         $chunk = new Chunk(500, 0.2);
