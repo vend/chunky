@@ -58,6 +58,13 @@ class Chunk implements LoggerAwareInterface
     protected $end;
 
     /**
+     * Whether the estimate is clamped by the limit options from the last chunk
+     *
+     * @var boolean
+     */
+    protected $clamped = false;
+
+    /**
      * @var array
      */
     protected $options = [];
@@ -173,19 +180,10 @@ class Chunk implements LoggerAwareInterface
         // Calculate the new estimate
         $this->estimate = (int)round($this->average * $this->target, 0);
 
-        $clamp = false;
+        // Clamp it if needed
+        $this->clampEstimate();
 
-        // Clamp
-        if ($this->estimate > $this->options['max']) {
-            $clamp = true;
-            $this->estimate = (int)$this->options['max'];
-        }
-
-        if ($this->estimate < $this->options['min']) {
-            $clamp = true;
-            $this->estimate = (int)$this->options['min'];
-        }
-
+        // Report
         $this->logger->notice(
             'Chunk size update: {p}, {d}/{n}s, {r}/{nr} -> {e} {c}',
             [
@@ -195,12 +193,32 @@ class Chunk implements LoggerAwareInterface
                 'r'  => $observed,
                 'nr' => $previous / $this->target,
                 'e'  => $this->estimate,
-                'c'  => ($clamp ? '(clamped)' : '')
+                'c'  => ($this->clamped ? '(clamped)' : '')
             ]
         );
 
+        // And reset
         $this->begin = null;
         $this->end   = null;
+    }
+
+    /**
+     * Clamp the current estimate according to the options
+     */
+    protected function clampEstimate()
+    {
+        $this->clamped = false;
+
+        // Clamp
+        if ($this->estimate > $this->options['max']) {
+            $this->clamped  = true;
+            $this->estimate = (int)$this->options['max'];
+        }
+
+        if ($this->estimate < $this->options['min']) {
+            $this->clamped  = true;
+            $this->estimate = (int)$this->options['min'];
+        }
     }
 
     /**
