@@ -38,7 +38,8 @@ class ChunkTest extends Test
     public function testTakingShorter()
     {
         // We target 1000 rows, and 10 seconds
-        $chunk = new Chunk(1000, 10);
+        $chunk = new Chunk(1000, 0.2);
+        $chunk->setTarget(10);
 
         // But we took 5 seconds instead!
         $chunk->interval(5);

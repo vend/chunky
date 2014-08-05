@@ -89,6 +89,16 @@ class Chunk implements LoggerAwareInterface
     }
 
     /**
+     * Sets the target wallclock time for the chunk to take
+     *
+     * @param float $target
+     */
+    public function setTarget($target)
+    {
+        $this->target = $target;
+    }
+
+    /**
      * Returns an estimated chunk size to use to get the operation to perform within the target timeframe
      *
      * @return int
