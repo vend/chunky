@@ -77,7 +77,7 @@ class ReplicatedChunk extends Chunk
 
         while (($lag = $this->getLag($connection)) > $this->options['max_lag']) {
             $this->paused = true;
-            $for = $this->options['pause'];
+            $for = $this->options['pause_lag'];
 
             $this->logger->notice('Chunk detected lag of {lag} on {database}, pausing for {for}', [
                 'lag'      => $lag,
@@ -88,8 +88,8 @@ class ReplicatedChunk extends Chunk
             usleep($for);
             $paused += $for;
 
-            if ($paused > $this->options['max_pause']) {
-                if ($this->options['continue']) {
+            if ($paused > $this->options['max_pause_lag']) {
+                if ($this->options['continue_lag']) {
                     break;
                 } else {
                     throw new RuntimeException('Slave lag did not recover after processing chunk. Aborting.');

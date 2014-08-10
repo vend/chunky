@@ -7,8 +7,8 @@ class ReplicatedChunkTest extends Test
     public function testLaggedSlave()
     {
         $sut = new ReplicatedChunk(500, '0.2', [
-            'continue'  => true,
-            'max_pause' => '1000000'
+            'continue_lag'  => true,
+            'max_pause_lag' => '1000000'
         ]);
 
         $sut->setSlaves([
@@ -26,8 +26,8 @@ class ReplicatedChunkTest extends Test
     public function testLaggedSlaveException()
     {
         $sut = new ReplicatedChunk(500, '0.2', [
-            'continue'  => false,
-            'max_pause' => '1000000'
+            'continue_lag'  => false,
+            'max_pause_lag' => '1000000'
         ]);
 
         $sut->setSlaves([
@@ -42,8 +42,8 @@ class ReplicatedChunkTest extends Test
     public function testRecoveringSlave()
     {
         $sut = new ReplicatedChunk(500, '0.2', [
-            'continue'  => true,
-            'max_pause' => '1000000'
+            'continue_lag'  => true,
+            'max_pause_lag' => '1000000'
         ]);
 
         $sut->setSlaves([
