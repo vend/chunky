@@ -35,6 +35,13 @@ class ChunkTest extends Test
         $this->assertLessThan(1000, $chunk->getEstimatedSize());
     }
 
+    public function testPauseAlways()
+    {
+        $chunk = new Chunk(1000, 10, ['pause_always' => 10]);
+        $chunk->interval(20);
+        $this->assertTrue($chunk->getPaused());
+    }
+
     public function testTakingShorter()
     {
         // We target 1000 rows, and 10 seconds

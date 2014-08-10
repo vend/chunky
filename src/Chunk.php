@@ -65,6 +65,13 @@ class Chunk implements LoggerAwareInterface
     protected $clamped = false;
 
     /**
+     * Whether iteration paused on the last chunk
+     *
+     * @var boolean
+     */
+    protected $paused = false;
+
+    /**
      * @var array
      */
     protected $options = [];
@@ -73,9 +80,10 @@ class Chunk implements LoggerAwareInterface
      * @param int $estimate
      * @param float $target
      * @param array $options
-     *   - int min         The minimum estimated size to ever return
-     *   - int max         The maximum estimated size to ever return
-     *   - float smoothing The exponential smoothing factor, 0 < s < 1
+     *   - int min            The minimum estimated size to ever return
+     *   - int max            The maximum estimated size to ever return
+     *   - float smoothing    The exponential smoothing factor, 0 < s < 1
+     *   - float pause_always A number of seconds to always pause for, after every chunk
      */
     public function __construct($estimate, $target = 0.2, array $options = [])
     {
@@ -86,6 +94,16 @@ class Chunk implements LoggerAwareInterface
 
         $this->options = $options;
         $this->mergeDefaultOptions();
+    }
+
+    /**
+     * Whether iteration paused on the last chunk
+     *
+     * @return boolean
+     */
+    public function getPaused()
+    {
+        return $this->paused;
     }
 
     /**
@@ -207,9 +225,26 @@ class Chunk implements LoggerAwareInterface
             ]
         );
 
+        $this->checkPause();
+
         // And reset
         $this->begin = null;
         $this->end   = null;
+    }
+
+    /**
+     * Pause if necessary
+     *
+     * @return void
+     */
+    protected function checkPause()
+    {
+        $this->paused = false;
+
+        if ($this->options['pause_always']) {
+            usleep($this->options['pause_always']);
+            $this->paused = true;
+        }
     }
 
     /**
@@ -259,9 +294,10 @@ class Chunk implements LoggerAwareInterface
     protected function getDefaultOptions()
     {
         return [
-            'min'       => (int)(0.01 * $this->estimate),
-            'max'       => (int)(3 * $this->estimate),
-            'smoothing' => 0.3
+            'min'          => (int)(0.01 * $this->estimate),
+            'max'          => (int)(3 * $this->estimate),
+            'smoothing'    => 0.3,
+            'pause_always' => null
         ];
     }
 }

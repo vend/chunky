@@ -17,13 +17,13 @@ use \RuntimeException;
  * slave lag has reduced.
  *
  * Additional options:
- *   - pause, microseconds, time to pause for when lag is detected; also, time
+ *   - pause_lag, microseconds, time to pause for when lag is detected; also, time
  *       between lag checks (default 500,000: 0.5 sec)
- *   - max_pause, microseconds, the maximum time to pause for (in total, across
+ *   - max_pause_lag, microseconds, the maximum time to pause for (in total, across
  *       all checks) before continuing or failing (default 60,000,000: 60 sec)
  *   - max_lag, seconds, the maximum seconds a replica can be behind the master
  *       before it is considered lagging
- *   - continue, boolean, if max_pause is hit, should we throw an exception or
+ *   - continue_lag, boolean, if max_pause_lag is hit, should we throw an exception or
  *       just continue
  */
 class ReplicatedChunk extends Chunk
@@ -34,33 +34,16 @@ class ReplicatedChunk extends Chunk
     protected $slaves = [];
 
     /**
-     * Whether iteration paused on the last chunk
-     *
-     * @var boolean
-     */
-    protected $paused = false;
-
-    /**
      * @inheritDoc
      */
     protected function getDefaultOptions()
     {
         return array_merge(parent::getDefaultOptions(), [
-            'pause'     => 500000,   // microseconds, 0.5 seconds
-            'max_pause' => 60000000, // microseconds, 60 seconds
-            'max_lag'   => 1,
-            'continue'  => false     // continue if still lagged after max_pause
+            'pause_lag'     => 500000,   // microseconds, 0.5 seconds
+            'max_pause_lag' => 60000000, // microseconds, 60 seconds
+            'max_lag'       => 1,
+            'continue_lag'  => false     // continue if still lagged after max_pause
         ]);
-    }
-
-    /**
-     * Whether iteration paused on the last chunk
-     *
-     * @return boolean
-     */
-    public function getPaused()
-    {
-        return $this->paused;
     }
 
     /**
@@ -72,15 +55,12 @@ class ReplicatedChunk extends Chunk
     }
 
     /**
-     * @inheritDoc
+     * Check whether necessary to pause for slave lag
      */
-    protected function updateEstimate($processed = null)
+    protected function checkPause()
     {
-        parent::updateEstimate($processed);
+        parent::checkPause();
 
-        $this->paused = false;
-
-        // Check all slaves for lag
         foreach ($this->slaves as $slave) {
             $this->checkSlave($slave);
         }
